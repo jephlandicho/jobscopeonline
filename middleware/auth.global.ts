@@ -2,7 +2,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   const user = await getCurrentUser();
 
   // Define an array of public routes (parent routes) that can be accessed without authentication
-  const publicRoutes = ["index", "about", "services"];
+  const publicRoutes = ["index", "about", "services", "signup"];
 
   // Check if the route is a public parent route
   const isPublicRoute = publicRoutes.includes(to.name as string);

@@ -25,6 +25,9 @@ const { $hello } = useNuxtApp();
 const { sayHello } = useUtils();
 sayHello();
 const { x, y } = useMouse();
+useHead({
+  title: "Home",
+});
 </script>
 
 <style scoped></style>

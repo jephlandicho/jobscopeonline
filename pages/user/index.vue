@@ -16,7 +16,9 @@
 
 <script setup>
 import { signOut } from "firebase/auth";
-
+useHead({
+  title: "Users",
+});
 definePageMeta({
   layout: "authenticated",
 });

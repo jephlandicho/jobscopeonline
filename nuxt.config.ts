@@ -3,6 +3,15 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
   ssr: false,
+  app: {
+    head: {
+      titleTemplate: "%s | Job Scope Online", // Optional title template for all pages
+      meta: [
+        { name: "description", content: "This is my Nuxt 3 app" },
+        // Other global meta tags
+      ],
+    },
+  },
   css: ["~/assets/css/main.css"],
   alias: {
     assets: "/<rootDir>/assets",
