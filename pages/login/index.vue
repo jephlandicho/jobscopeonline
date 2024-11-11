@@ -4,32 +4,32 @@
       <h2 class="text-3xl font-bold text-center mb-6 text-slate-900">
         Login Page
       </h2>
-
+      <CustomAlert
+        v-if="alertMessage"
+        :message="alertMessage"
+        :type="alertType"
+      />
       <!-- Email and Password Login Form -->
       <form @submit.prevent="signInWithEmail" class="space-y-4">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700"
-            >Email</label
-          >
-          <input
+          <CustomInput
+            label="Email"
             id="email"
-            v-model="email"
             type="email"
+            placeholder="name@jobscopeonline.com"
+            v-model="email"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label for="password" class="block text-sm font-medium text-gray-700"
-            >Password</label
           >
-          <input
+          </CustomInput>
+        </div>
+        <div>
+          <CustomInput
+            label="Password"
             id="password"
-            v-model="password"
             type="password"
+            placeholder="Please enter your password"
+            v-model="password"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -72,6 +72,7 @@ import { useRouter } from "vue-router";
 import { signOut } from "firebase/auth";
 const auth = useFirebaseAuth();
 const router = useRouter();
+const alertMessage = ref("");
 
 const email = ref("");
 const password = ref("");
@@ -83,7 +84,11 @@ function signInwithGoogle() {
       router.replace("/user");
     })
     .catch((error) => {
-      errorMessage.value = error.message;
+      const extractedMessage =
+        error.message.split(": ")[1] || "An error occurred";
+
+      alertMessage.value = extractedMessage;
+      alertType.value = "danger";
     });
 }
 
@@ -98,7 +103,8 @@ async function signInWithEmail() {
 
     // Check if the user's email is verified
     if (!user.emailVerified) {
-      alert("Please verify your email before logging in.");
+      alertMessage.value = "Please verify your email before logging in.";
+      alertType.value = "danger";
       // Optionally, you can sign the user out after this check to prevent access
       await signOut(auth);
       return;
@@ -106,8 +112,11 @@ async function signInWithEmail() {
 
     router.replace("/user"); // Redirect to user page after successful login
   } catch (error) {
-    console.error(error.message);
-    alert(error.message);
+    const extractedMessage =
+      error.message.split(": ")[1] || "An error occurred";
+
+    alertMessage.value = extractedMessage;
+    alertType.value = "danger";
   }
 }
 

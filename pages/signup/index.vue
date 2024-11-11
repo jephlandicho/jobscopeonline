@@ -4,44 +4,44 @@
       <h2 class="text-3xl font-bold text-center mb-6 text-slate-900">
         Sign Up Page
       </h2>
+
+      <!-- Custom Alert for displaying messages -->
+      <CustomAlert
+        v-if="alertMessage"
+        :message="alertMessage"
+        :type="alertType"
+      />
+
       <!-- Email Sign Up Form -->
       <form @submit.prevent="signUp" class="space-y-4">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700"
-            >Email</label
-          >
-          <input
+          <CustomInput
+            label="Email"
             id="email"
-            v-model="email"
             type="email"
+            placeholder="name@jobscopeonline.com"
+            v-model="email"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700"
-            >Password</label
-          >
-          <input
+          <CustomInput
+            label="Password"
             id="password"
-            v-model="password"
             type="password"
+            placeholder="Must at least 6 characters"
+            v-model="password"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
-          <label
-            for="confirmPassword"
-            class="block text-sm font-medium text-gray-700"
-            >Confirm Password</label
-          >
-          <input
+          <CustomInput
+            label="Confirm Password"
             id="confirmPassword"
-            v-model="confirmPassword"
             type="password"
+            placeholder="Please confirm your password"
+            v-model="confirmPassword"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div class="flex justify-between">
@@ -73,9 +73,10 @@ import {
   sendEmailVerification,
   GoogleAuthProvider,
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { signOut } from "firebase/auth";
+import CustomAlert from "@/components/CustomAlert.vue"; // Import CustomAlert component
 
 const auth = useFirebaseAuth();
 const router = useRouter();
@@ -83,6 +84,8 @@ const router = useRouter();
 const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
+const alertMessage = ref("");
+const alertType = ref("info");
 
 function signInwithGoogle() {
   signInWithPopup(auth, new GoogleAuthProvider())
@@ -90,45 +93,45 @@ function signInwithGoogle() {
       router.replace("/user");
     })
     .catch((error) => {
-      errorMessage.value = error.message;
+      alertMessage.value = error.message;
+      alertType.value = "danger";
     });
 }
 
 async function signUp() {
   if (password.value !== confirmPassword.value) {
-    alert("Passwords don't match!");
+    alertMessage.value = "Passwords don't match!";
+    alertType.value = "danger";
     return;
   }
 
   try {
-    // Create user with email and password
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email.value,
       password.value
     );
     const user = userCredential.user;
-
-    // Dynamically create the redirect URL
     const redirectUrl = `${window.location.origin}/email-verified`;
 
-    // Send email verification with dynamically created redirect URL
     await sendEmailVerification(user, {
       url: redirectUrl,
     });
 
-    alert(
-      "A confirmation email has been sent. Please verify your email before logging in."
-    );
+    alertMessage.value =
+      "A confirmation email has been sent. Please verify your email before logging in.";
+    alertType.value = "success";
 
-    // Sign out the user immediately after signup to prevent automatic login
     await signOut(auth);
-
-    // Redirect to login page
     router.push("/login");
   } catch (error) {
     console.error(error.message);
-    alert(error.message);
+
+    const extractedMessage =
+      error.message.split(": ")[1] || "An error occurred";
+
+    alertMessage.value = extractedMessage;
+    alertType.value = "danger";
   }
 }
 
